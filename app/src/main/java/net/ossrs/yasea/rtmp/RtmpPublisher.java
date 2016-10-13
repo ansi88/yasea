@@ -12,18 +12,24 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author francois, leo
  */
 public interface RtmpPublisher {
-    
-    void connect(String url) throws IOException;
+    /**
+     * Issues an RTMP "connect" command and wait for the response.
+     *
+     * @param url specify the RTMP url
+     * @return If succeeded return true else return false
+     * @throws IOException if a network/IO error occurs
+     */
+    boolean connect(String url) throws IOException;
     
     /**
      * Issues an RTMP "publish" command and write the media content stream packets (audio and video). 
      * 
      * @param publishType specify the way to publish raw RTMP packets among "live", "record" and "append"
-     * @return An outputStream allowing you to write the incoming media content data
+     * @return If succeeded return true else return false
      * @throws IllegalStateException if the client is not connected to a RTMP server
      * @throws IOException if a network/IO error occurs
      */
-    void publish(String publishType) throws IllegalStateException, IOException;
+    boolean publish(String publishType) throws IllegalStateException, IOException;
      
     /**
      * Stops and closes the current RTMP stream
@@ -39,15 +45,17 @@ public interface RtmpPublisher {
      * publish a video content packet to server
      *
      * @param data video stream byte array
+     * @param dts video stream decoding timestamp
      */
-    void publishVideoData(byte[] data) throws IllegalStateException;
+    void publishVideoData(byte[] data, int dts) throws IllegalStateException;
 
     /**
      * publish an audio content packet to server
      *
      * @param data audio stream byte array
+     * @param dts audio stream decoding timestamp
      */
-    void publishAudioData(byte[] data) throws IllegalStateException;
+    void publishAudioData(byte[] data, int dts) throws IllegalStateException;
 
     /**
      * obtain event handler in publisher
@@ -100,5 +108,9 @@ public interface RtmpPublisher {
         void onRtmpDisconnected(String msg);
 
         void onRtmpOutputFps(double fps);
+
+        void onRtmpVideoBitrate(double bitrate);
+
+        void onRtmpAudioBitrate(double bitrate);
     }
 }
